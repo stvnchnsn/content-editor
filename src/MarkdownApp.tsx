@@ -71,6 +71,10 @@ export default function MarkdownApp({ theme }: { theme: Theme }) {
     if (success) setIsDirty(false);
   }, [saveFileAs, content, setIsDirty]);
 
+  const handleCopy = useCallback(async () => {
+    await navigator.clipboard.writeText(content);
+  }, [content]);
+
   const handleNew = useCallback(() => {
     if (isDirty && !window.confirm('Discard unsaved changes?')) return;
     setContent('');
@@ -99,6 +103,7 @@ export default function MarkdownApp({ theme }: { theme: Theme }) {
           onSave={handleSave}
           onSaveAs={handleSaveAs}
           onNew={handleNew}
+          onCopy={handleCopy}
           cliMode={cliMode}
           cwdFiles={cwdInfo?.files ?? []}
           onLoadServerFile={handleLoadServerFile}

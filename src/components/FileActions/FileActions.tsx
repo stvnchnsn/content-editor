@@ -1,3 +1,4 @@
+import { useState, useCallback } from 'react';
 import type { FileInfo } from '../../types';
 import styles from './FileActions.module.css';
 
@@ -8,6 +9,7 @@ interface FileActionsProps {
   onSave: () => void;
   onSaveAs: () => void;
   onNew: () => void;
+  onCopy?: () => Promise<void> | void;
   cliMode?: boolean;
   cwdFiles?: string[];
   onLoadServerFile?: (path: string) => void;
@@ -20,10 +22,20 @@ export function FileActions({
   onSave,
   onSaveAs,
   onNew,
+  onCopy,
   cliMode,
   cwdFiles,
   onLoadServerFile,
 }: FileActionsProps) {
+  const [copied, setCopied] = useState(false);
+
+  const handleCopy = useCallback(async () => {
+    if (!onCopy) return;
+    await onCopy();
+    setCopied(true);
+    setTimeout(() => setCopied(false), 1500);
+  }, [onCopy]);
+
   return (
     <div className={styles.fileActions}>
       <button onClick={onNew} className={styles.button}>
@@ -55,6 +67,11 @@ export function FileActions({
       <button onClick={onSaveAs} className={styles.button}>
         Save As
       </button>
+      {onCopy && (
+        <button onClick={handleCopy} className={styles.button}>
+          {copied ? 'Copied!' : 'Copy'}
+        </button>
+      )}
       {fileInfo && (
         <span className={styles.fileName}>
           {fileInfo.name}
