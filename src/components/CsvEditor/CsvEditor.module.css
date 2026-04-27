@@ -1,0 +1,166 @@
+.container {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  outline: none;
+  overflow: hidden;
+}
+
+.tableWrapper {
+  flex: 1;
+  overflow: auto;
+}
+
+.table {
+  border-collapse: collapse;
+  font-size: 13px;
+  font-family: 'SF Mono', 'Menlo', 'Monaco', 'Consolas', monospace;
+  min-width: 100%;
+  user-select: none;
+}
+
+.cornerHeader {
+  width: 48px;
+  min-width: 48px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  position: sticky;
+  top: 0;
+  left: 0;
+  z-index: 3;
+}
+
+.colHeader {
+  padding: 4px 12px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  font-weight: 600;
+  text-align: center;
+  color: var(--color-text-muted);
+  font-size: 11px;
+  letter-spacing: 0.5px;
+  cursor: pointer;
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  min-width: 80px;
+}
+
+.colHeader:hover {
+  background: var(--color-primary);
+  color: white;
+}
+
+.rowHeader {
+  padding: 2px 8px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  font-weight: 600;
+  text-align: center;
+  color: var(--color-text-muted);
+  font-size: 11px;
+  cursor: pointer;
+  position: sticky;
+  left: 0;
+  z-index: 1;
+  width: 48px;
+  min-width: 48px;
+}
+
+.rowHeader:hover {
+  background: var(--color-primary);
+  color: white;
+}
+
+.cell {
+  padding: 0;
+  border: 1px solid var(--color-border);
+  background: var(--color-bg);
+  min-width: 80px;
+  max-width: 300px;
+  height: 28px;
+  cursor: cell;
+  position: relative;
+}
+
+.cell.selected {
+  background: color-mix(in srgb, var(--color-primary) 12%, var(--color-bg));
+  outline: 2px solid var(--color-primary);
+  outline-offset: -2px;
+}
+
+.headerRow .cell,
+.headerCell {
+  background: var(--color-surface);
+  font-weight: 600;
+}
+
+.headerRow .cell.selected,
+.headerCell.selected {
+  background: color-mix(in srgb, var(--color-primary) 18%, var(--color-surface));
+}
+
+.cellText {
+  display: block;
+  padding: 4px 8px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.cellInput {
+  width: 100%;
+  height: 100%;
+  border: none;
+  outline: none;
+  padding: 4px 8px;
+  font-size: 13px;
+  font-family: inherit;
+  background: var(--color-bg);
+  color: var(--color-text);
+  box-sizing: border-box;
+}
+
+.empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 1;
+  color: var(--color-text-muted);
+  font-size: 14px;
+}
+
+/* Context menu */
+.contextMenu {
+  position: fixed;
+  background: var(--color-bg);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+  padding: 4px 0;
+  z-index: 100;
+  min-width: 180px;
+}
+
+.contextMenu button {
+  display: block;
+  width: 100%;
+  padding: 6px 16px;
+  border: none;
+  background: none;
+  text-align: left;
+  font-size: 13px;
+  color: var(--color-text);
+  cursor: pointer;
+}
+
+.contextMenu button:hover {
+  background: var(--color-primary);
+  color: white;
+}
+
+.separator {
+  height: 1px;
+  background: var(--color-border);
+  margin: 4px 0;
+}

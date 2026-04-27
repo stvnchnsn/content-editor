@@ -1,0 +1,182 @@
+.toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 16px;
+  border-bottom: 1px solid var(--color-border);
+  background: var(--color-surface);
+  min-height: 40px;
+}
+
+.left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.tabs {
+  display: flex;
+  gap: 0;
+}
+
+.tab {
+  padding: 8px 16px;
+  border: none;
+  background: none;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--color-text-muted);
+  border-bottom: 2px solid transparent;
+  transition: color 0.15s, border-color 0.15s;
+}
+
+.tab:hover {
+  color: var(--color-text);
+}
+
+.tab.active {
+  color: var(--color-primary);
+  border-bottom-color: var(--color-primary);
+}
+
+.actions {
+  display: flex;
+  gap: 4px;
+  padding-left: 8px;
+  border-left: 1px solid var(--color-border);
+}
+
+.btn {
+  padding: 4px 10px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  background: var(--color-bg);
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--color-text);
+  transition: background 0.15s;
+}
+
+.btn:hover {
+  background: var(--color-surface);
+}
+
+.btnFix {
+  background: #fff3bf;
+  border-color: #e67700;
+  color: #e67700;
+}
+
+.btnFix:hover {
+  background: #ffe8a3;
+}
+
+.btnPython {
+  background: #e8f4f8;
+  border-color: #3572a5;
+  color: #3572a5;
+}
+
+.btnPython:hover {
+  background: #d0e8f0;
+}
+
+.btnCopied {
+  background: #d3f9d8;
+  border-color: #2b8a3e;
+  color: #2b8a3e;
+}
+
+.truncateControl {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding-left: 8px;
+  border-left: 1px solid var(--color-border);
+}
+
+.truncateLabel {
+  font-size: 12px;
+  color: var(--color-text-muted);
+}
+
+.truncateSelect {
+  padding: 3px 6px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  background: var(--color-bg);
+  font-size: 12px;
+  color: var(--color-text);
+  cursor: pointer;
+}
+
+.status {
+  font-size: 12px;
+  font-weight: 500;
+  padding: 3px 10px;
+  border-radius: 12px;
+}
+
+.statusOk {
+  background: #d3f9d8;
+  color: #2b8a3e;
+}
+
+.statusError {
+  background: #ffe3e3;
+  color: #c92a2a;
+}
+
+.statusWarn {
+  background: #fff3bf;
+  color: #e67700;
+}
+
+:global([data-theme="dark"]) .btnFix {
+  background: #4a3800;
+  border-color: #e6a700;
+  color: #ffd43b;
+}
+
+:global([data-theme="dark"]) .btnFix:hover {
+  background: #5a4400;
+}
+
+:global([data-theme="dark"]) .btnPython {
+  background: #1a3a4a;
+  border-color: #5a9ec4;
+  color: #7db8d8;
+}
+
+:global([data-theme="dark"]) .btnPython:hover {
+  background: #204555;
+}
+
+:global([data-theme="dark"]) .btnCopied {
+  background: #1a3a1e;
+  border-color: #4caf50;
+  color: #81c784;
+}
+
+:global([data-theme="dark"]) .statusOk {
+  background: #1a3a1e;
+  color: #81c784;
+}
+
+:global([data-theme="dark"]) .statusError {
+  background: #3a1d1d;
+  color: #f08080;
+}
+
+:global([data-theme="dark"]) .statusWarn {
+  background: #4a3800;
+  color: #ffd43b;
+}
