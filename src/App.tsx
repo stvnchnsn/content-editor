@@ -1,4 +1,4 @@
-import { useState, useEffect, lazy, Suspense } from 'react';
+import { useState, useEffect, useCallback, lazy, Suspense } from 'react';
 import { EditorTypeSwitcher } from './components/EditorTypeSwitcher/EditorTypeSwitcher';
 import MarkdownApp from './MarkdownApp';
 import JsonApp from './JsonApp';
@@ -13,17 +13,21 @@ const EDITOR_TITLES: Record<EditorType, string> = {
   csv: 'CSV Editor',
 };
 
+const INITIAL_DIRTY: Record<EditorType, boolean> = {
+  markdown: false,
+  json: false,
+  csv: false,
+};
+
 export default function App() {
   const { theme, toggleTheme } = useTheme();
 
-  // Determine initial editor from URL param or default
   const [editorType, setEditorType] = useState<EditorType>(() => {
     const params = new URLSearchParams(window.location.search);
     const mode = params.get('mode');
     if (mode === 'json') return 'json';
     if (mode === 'markdown' || mode === 'md') return 'markdown';
     if (mode === 'csv') return 'csv';
-    // Auto-detect from file extension
     const file = params.get('file');
     if (file) {
       if (file.endsWith('.json')) return 'json';
@@ -33,10 +37,31 @@ export default function App() {
     return 'json';
   });
 
-  // Update document title
+  const [dirtyByEditor, setDirtyByEditor] = useState(INITIAL_DIRTY);
+
+  const handleDirtyChange = useCallback((type: EditorType, dirty: boolean) => {
+    setDirtyByEditor((prev) => (prev[type] === dirty ? prev : { ...prev, [type]: dirty }));
+  }, []);
+
+  const hasUnsavedChanges =
+    dirtyByEditor.markdown || dirtyByEditor.json || dirtyByEditor.csv;
+
   useEffect(() => {
     document.title = EDITOR_TITLES[editorType];
   }, [editorType]);
+
+  useEffect(() => {
+    const handler = (e: BeforeUnloadEvent) => {
+      if (hasUnsavedChanges) {
+        e.preventDefault();
+      }
+    };
+    window.addEventListener('beforeunload', handler);
+    return () => window.removeEventListener('beforeunload', handler);
+  }, [hasUnsavedChanges]);
+
+  const slotClass = (type: EditorType) =>
+    editorType === type ? styles.editorSlot : styles.editorSlotHidden;
 
   return (
     <div className={styles.app}>
@@ -70,13 +95,20 @@ export default function App() {
           )}
         </button>
       </header>
-      {editorType === 'markdown' && <MarkdownApp theme={theme} />}
-      {editorType === 'json' && <JsonApp />}
-      {editorType === 'csv' && (
+      <div className={slotClass('markdown')}>
+        <MarkdownApp
+          theme={theme}
+          onDirtyChange={(dirty) => handleDirtyChange('markdown', dirty)}
+        />
+      </div>
+      <div className={slotClass('json')}>
+        <JsonApp onDirtyChange={(dirty) => handleDirtyChange('json', dirty)} />
+      </div>
+      <div className={slotClass('csv')}>
         <Suspense fallback={null}>
-          <CsvApp />
+          <CsvApp onDirtyChange={(dirty) => handleDirtyChange('csv', dirty)} />
         </Suspense>
-      )}
+      </div>
     </div>
   );
 }

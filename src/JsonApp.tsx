@@ -1,5 +1,6 @@
 import { useState, useCallback, useEffect } from 'react';
 import { useFileHandler } from './hooks/useFileHandler';
+import { confirmDiscardUnsaved } from './utils/unsavedChanges';
 import { JsonEditor } from './components/JsonEditor/JsonEditor';
 import { JsonToolbar } from './components/JsonEditor/JsonToolbar';
 import { JsonTreeView } from './components/JsonTreeView/JsonTreeView';
@@ -112,7 +113,11 @@ function toPython(value: unknown, indent: number = 0): string {
   return String(value);
 }
 
-export default function JsonApp() {
+interface JsonAppProps {
+  onDirtyChange?: (dirty: boolean) => void;
+}
+
+export default function JsonApp({ onDirtyChange }: JsonAppProps) {
   const [content, setContentState] = useState('');
   const [isDirty, setIsDirty] = useState(false);
   const [viewMode, setViewMode] = useState<JsonViewMode>('editor');
@@ -134,23 +139,29 @@ export default function JsonApp() {
     setIsDirty(true);
   }, []);
 
+  useEffect(() => {
+    onDirtyChange?.(isDirty);
+  }, [isDirty, onDirtyChange]);
+
   const handleLoad = useCallback(async () => {
+    if (!confirmDiscardUnsaved(isDirty)) return;
     const text = await loadFile();
     if (text !== null) {
       setContentState(text);
       setIsDirty(false);
     }
-  }, [loadFile]);
+  }, [loadFile, isDirty]);
 
   const handleLoadServerFile = useCallback(
     async (path: string) => {
+      if (!confirmDiscardUnsaved(isDirty)) return;
       const text = await loadServerFile(path);
       if (text !== null) {
         setContentState(text);
         setIsDirty(false);
       }
     },
-    [loadServerFile],
+    [loadServerFile, isDirty],
   );
 
   // Auto-load file from ?file= query parameter
@@ -172,7 +183,7 @@ export default function JsonApp() {
   }, [saveFileAs, content]);
 
   const handleNew = useCallback(() => {
-    if (isDirty && !window.confirm('Discard unsaved changes?')) return;
+    if (!confirmDiscardUnsaved(isDirty)) return;
     setContentState('');
     setIsDirty(false);
   }, [isDirty]);
@@ -255,15 +266,6 @@ export default function JsonApp() {
     window.addEventListener('keydown', handler);
     return () => window.removeEventListener('keydown', handler);
   }, [handleSave]);
-
-  // beforeunload guard
-  useEffect(() => {
-    const handler = (e: BeforeUnloadEvent) => {
-      if (isDirty) e.preventDefault();
-    };
-    window.addEventListener('beforeunload', handler);
-    return () => window.removeEventListener('beforeunload', handler);
-  }, [isDirty]);
 
   return (
     <div className={styles.editorPanel}>

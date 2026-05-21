@@ -1,4 +1,4 @@
-import { useState, useCallback, useRef, useEffect } from 'react';
+import { useState, useCallback, useRef } from 'react';
 import type { MDXEditorMethods } from '@mdxeditor/editor';
 import type { ViewMode } from '../types';
 
@@ -12,16 +12,6 @@ export function useMarkdownEditor() {
     setContentState(newContent);
     setIsDirty(true);
   }, []);
-
-  useEffect(() => {
-    const handler = (e: BeforeUnloadEvent) => {
-      if (isDirty) {
-        e.preventDefault();
-      }
-    };
-    window.addEventListener('beforeunload', handler);
-    return () => window.removeEventListener('beforeunload', handler);
-  }, [isDirty]);
 
   return {
     content,

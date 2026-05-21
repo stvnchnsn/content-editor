@@ -1,5 +1,6 @@
 import { useState, useCallback, useEffect } from 'react';
 import { useFileHandler } from './hooks/useFileHandler';
+import { confirmDiscardUnsaved } from './utils/unsavedChanges';
 import { CsvEditor } from './components/CsvEditor/CsvEditor';
 import { CsvToolbar, type CsvViewMode } from './components/CsvEditor/CsvToolbar';
 import { RawView } from './components/RawView/RawView';
@@ -7,7 +8,11 @@ import { FileActions } from './components/FileActions/FileActions';
 import { parseCsv, serializeCsv, type MergedCell } from './components/CsvEditor/csvUtils';
 import styles from './App.module.css';
 
-export default function CsvApp() {
+interface CsvAppProps {
+  onDirtyChange?: (dirty: boolean) => void;
+}
+
+export default function CsvApp({ onDirtyChange }: CsvAppProps) {
   const [rawContent, setRawContent] = useState('');
   const [rows, setRows] = useState<string[][]>([['', '', '']]);
   const [mergedCells, setMergedCells] = useState<Record<string, MergedCell>>({});
@@ -85,17 +90,23 @@ export default function CsvApp() {
     [syncToRows],
   );
 
+  useEffect(() => {
+    onDirtyChange?.(isDirty);
+  }, [isDirty, onDirtyChange]);
+
   const handleLoad = useCallback(async () => {
+    if (!confirmDiscardUnsaved(isDirty)) return;
     const text = await loadFile();
     if (text !== null) loadContent(text);
-  }, [loadFile, loadContent]);
+  }, [loadFile, loadContent, isDirty]);
 
   const handleLoadServerFile = useCallback(
     async (path: string) => {
+      if (!confirmDiscardUnsaved(isDirty)) return;
       const text = await loadServerFile(path);
       if (text !== null) loadContent(text);
     },
-    [loadServerFile, loadContent],
+    [loadServerFile, loadContent, isDirty],
   );
 
   // Auto-load file from ?file= query parameter
@@ -121,7 +132,7 @@ export default function CsvApp() {
   }, [getCurrentContent]);
 
   const handleNew = useCallback(() => {
-    if (isDirty && !window.confirm('Discard unsaved changes?')) return;
+    if (!confirmDiscardUnsaved(isDirty)) return;
     setRawContent('');
     setRows([['', '', '']]);
     setMergedCells({});
@@ -150,15 +161,6 @@ export default function CsvApp() {
     window.addEventListener('keydown', handler);
     return () => window.removeEventListener('keydown', handler);
   }, [handleSave]);
-
-  // beforeunload guard
-  useEffect(() => {
-    const handler = (e: BeforeUnloadEvent) => {
-      if (isDirty) e.preventDefault();
-    };
-    window.addEventListener('beforeunload', handler);
-    return () => window.removeEventListener('beforeunload', handler);
-  }, [isDirty]);
 
   return (
     <div className={styles.editorPanel}>

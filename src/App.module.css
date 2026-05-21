@@ -64,3 +64,14 @@
   color: var(--color-text);
   border-color: var(--color-text-muted);
 }
+
+.editorSlot {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+}
+
+.editorSlotHidden {
+  display: none;
+}

@@ -1,6 +1,7 @@
 import { useCallback, useEffect } from 'react';
 import { useMarkdownEditor } from './hooks/useMarkdownEditor';
 import { useFileHandler } from './hooks/useFileHandler';
+import { confirmDiscardUnsaved } from './utils/unsavedChanges';
 import { TabBar } from './components/TabBar/TabBar';
 import { RawView } from './components/RawView/RawView';
 import { EditingView } from './components/EditingView/EditingView';
@@ -9,7 +10,12 @@ import { FileActions } from './components/FileActions/FileActions';
 import type { Theme } from './hooks/useTheme';
 import styles from './App.module.css';
 
-export default function MarkdownApp({ theme }: { theme: Theme }) {
+interface MarkdownAppProps {
+  theme: Theme;
+  onDirtyChange?: (dirty: boolean) => void;
+}
+
+export default function MarkdownApp({ theme, onDirtyChange }: MarkdownAppProps) {
   const {
     content,
     setContent,
@@ -30,17 +36,23 @@ export default function MarkdownApp({ theme }: { theme: Theme }) {
     saveFileAs,
   } = useFileHandler('markdown');
 
+  useEffect(() => {
+    onDirtyChange?.(isDirty);
+  }, [isDirty, onDirtyChange]);
+
   const handleLoad = useCallback(async () => {
+    if (!confirmDiscardUnsaved(isDirty)) return;
     const text = await loadFile();
     if (text !== null) {
       setContent(text);
       setIsDirty(false);
       mdxEditorRef.current?.setMarkdown(text);
     }
-  }, [loadFile, setContent, setIsDirty, mdxEditorRef]);
+  }, [loadFile, setContent, setIsDirty, mdxEditorRef, isDirty]);
 
   const handleLoadServerFile = useCallback(
     async (path: string) => {
+      if (!confirmDiscardUnsaved(isDirty)) return;
       const text = await loadServerFile(path);
       if (text !== null) {
         setContent(text);
@@ -48,7 +60,7 @@ export default function MarkdownApp({ theme }: { theme: Theme }) {
         mdxEditorRef.current?.setMarkdown(text);
       }
     },
-    [loadServerFile, setContent, setIsDirty, mdxEditorRef],
+    [loadServerFile, setContent, setIsDirty, mdxEditorRef, isDirty],
   );
 
   // Auto-load file from ?file= query parameter (CLI mode)
@@ -76,7 +88,7 @@ export default function MarkdownApp({ theme }: { theme: Theme }) {
   }, [content]);
 
   const handleNew = useCallback(() => {
-    if (isDirty && !window.confirm('Discard unsaved changes?')) return;
+    if (!confirmDiscardUnsaved(isDirty)) return;
     setContent('');
     setIsDirty(false);
     mdxEditorRef.current?.setMarkdown('');
